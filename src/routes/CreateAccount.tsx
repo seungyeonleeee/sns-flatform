@@ -1,48 +1,19 @@
 // 8, // 28 useState
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import React, { useState } from "react";
-import styled from "styled-components";
+// 47
+import { useNavigate } from "react-router-dom";
 // 42
 import { auth } from "../firebase";
-
-// 27
-const Wrapper = styled.div`
-  width: 420px;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 0 auto;
-  padding: 50px 0;
-`;
-const Title = styled.h1`
-  font-size: 42px;
-`;
-const Form = styled.form`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 30px;
-`;
-const Input = styled.input`
-  width: 100%;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 50px;
-  font-size: 16px;
-  &[type="submit"] {
-    cursor: pointer;
-    transition: opacity 0.3s;
-    &:hover {
-      opacity: 0.8;
-    }
-  }
-`;
-const Error = styled.span`
-  font-weight: 600;
-  color: tomato;
-`;
+import { FirebaseError } from "firebase/app";
+// 75
+import {
+  Form,
+  Input,
+  Title,
+  Wrapper,
+  Error,
+} from "../components/auth-components";
 
 const CreateAccount = () => {
   // 36 로딩시간 제어
@@ -53,6 +24,9 @@ const CreateAccount = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  // 48
+  const navigate = useNavigate();
 
   // 31 TS문법 매개변수 타입 정해줘야 함
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,16 +56,36 @@ const CreateAccount = () => {
       // create an account
       // set the name of the user
       // redirect to the home page
-      // 41 - 순차적으로 실행 await
-      await createUserWithEmailAndPassword(
+      setIsLoading(true);
+      // 50
+
+      // 41 - 순차적으로 실행 await, // 45 변수에 담기
+      const credentials = await createUserWithEmailAndPassword(
         // 43
         auth,
         email,
         password
       );
       // createUserWithEmailAndPassword : 사용자에게 값을 받아서 생성
+
+      // 46 updateProfile : 로그인 정보를 db에 업데이트 해주는 함수
+      await updateProfile(credentials.user, {
+        displayName: name,
+      });
+
+      // 49
+      navigate("/");
     } catch (e) {
+      setIsLoading(true);
       // setError()
+
+      // 64 중복 이메일 넣어보기
+      // console.log(e);
+
+      // 65 에러객체 타입 정의
+      if (e instanceof FirebaseError) {
+        setError(e.message);
+      }
     } finally {
       setIsLoading(false); // try, catch 상관없이 로딩상태는 무조건 끝나게
     }

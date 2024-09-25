@@ -14,22 +14,41 @@ import Login from "./routes/Login";
 // 19
 import LoadingScreen from "./components/LoadingScreen";
 import CreateAccount from "./routes/CreateAccount";
+// 56
+import ProtectedRoute from "./components/ProtectedRoute";
 
 // 3
 const router = createBrowserRouter([
   {
     // 기본 뼈대
     path: "/",
-    element: <Layout />,
+    element: (
+      // 59
+      <ProtectedRoute>
+        <Layout />
+      </ProtectedRoute>
+    ),
     // 자식 컴포넌트들
     children: [
       {
         path: "",
         element: <Home />,
+        // 57
+        // element: (
+        //   <ProtectedRoute>
+        //     <Home />
+        //   </ProtectedRoute>
+        // ),
       },
       {
         path: "profile",
         element: <Profile />,
+        // 57
+        // element: (
+        //   <ProtectedRoute>
+        //     <Profile />
+        //   </ProtectedRoute>
+        // ),
       },
     ],
   },
@@ -75,7 +94,7 @@ function App() {
     // 16
     // firebase Authentication 순서를 기다려야 함 (동기) - await
     // setTimeout(() => setIsLoading(false), 2000); // 잘 나오는지 확인
-    await setIsLoading(false);
+    setIsLoading(false);
   };
 
   // 17 마운트가 되는 시점 한번만
