@@ -9,6 +9,7 @@ import { getStorage } from "firebase/storage";
 // 103 창고 (DB보다 더 큰 공간)
 import { getFirestore } from "firebase/firestore";
 
+// 승인을 받기 위한 API KEY들
 const firebaseConfig = {
   apiKey: "AIzaSyDwSseOE054eaAqZ6bb0UTnsQvcj3JS3ps",
   authDomain: "sns-platform-a9f1e.firebaseapp.com",

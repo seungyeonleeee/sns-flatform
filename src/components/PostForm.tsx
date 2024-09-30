@@ -1,10 +1,11 @@
 // 94 폼 가지고 오기 (리팩토링)
-import { addDoc, collection } from "firebase/firestore";
+import { addDoc, collection, updateDoc } from "firebase/firestore";
 // 93
 import React, { useState } from "react";
 // 91
 import styled from "styled-components";
-import { auth, db } from "../firebase";
+import { auth, db, storage } from "../firebase";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 const Form = styled.form`
   display: flex;
@@ -79,6 +80,9 @@ const PostForm = () => {
   const [post, setPost] = useState("");
   const [file, setFile] = useState<File | null>(null); // 어떠한 값이 들어올지 모르고 최초에는 아무것도 있으면 안됨 , TS에서 or는 | 1개
 
+  // 111 최대 용량 제한
+  const maxFileSize = 5 * 1024 * 1024; // 5메가 - 데이터 단위 참고
+
   // 97
   const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     // console.log(e);
@@ -90,23 +94,57 @@ const PostForm = () => {
     // console.log(e.target.files);
     const { files } = e.target;
     // console.log(files);
-    if (files && files.length === 1) setFile(files[0]);
+    if (files && files.length === 1) {
+      // 112
+      if (files[0].size > maxFileSize) {
+        alert("The Maximum Capacity that can be uploaded is 5MB");
+        return;
+      }
+      setFile(files[0]);
+    }
+
     // 파일이 있고 1개 이상 선택되었을 때
   };
 
-  // 107 컬렉션에 값을 보내주는 함수
+  // 107 firebase 컬렉션에 값을 보내주는 함수
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const user = auth.currentUser;
     if (!user || isLoading || post === "" || post.length > 180) return;
     try {
       setIsLoading(true);
-      await addDoc(collection(db, "contents"), {
+      // 110 변수에 담기
+      const doc = await addDoc(collection(db, "contents"), {
         post,
         createdAt: Date.now(),
         username: user?.displayName || "Anonymous",
         userId: user.uid,
       });
+      // 109
+      if (file) {
+        // ref() : 파이어베이스 안에 넣을 구조를 찾아와주는 함수
+        const locationRef = ref(storage, `contents/${user.uid}/${doc.id}`);
+        // uploadBytes() : storage에 업데이트 해주는 함수
+        const result = await uploadBytes(locationRef, file);
+        const url = await getDownloadURL(result.ref);
+
+        // 138 파일 타입 체크
+        const fileType = file.type;
+        if (fileType.startsWith("image/")) {
+          // startsWith : 어떠한 문자로 시작하는지 체크
+          await updateDoc(doc, {
+            photo: url,
+          });
+        }
+        if (fileType.startsWith("video/")) {
+          await updateDoc(doc, {
+            video: url,
+          });
+        }
+      }
+      // 110 업로드 하면 리셋해주기
+      setPost("");
+      setFile(null);
     } catch (e) {
       console.error(e); // 이게 정석
     } finally {
@@ -128,6 +166,8 @@ const PostForm = () => {
         onChange={onChange}
         // 99
         value={post}
+        // 108
+        required
       ></TextArea>
       <AttachFileButton htmlFor="file">
         {file ? "Contents Added ✔" : "Add ➕"}
