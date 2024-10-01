@@ -1,5 +1,5 @@
 // 76
-import React from "react";
+
 // 81 github와의 연결고리 (firbase함수)
 import { GithubAuthProvider, signInWithPopup } from "firebase/auth";
 // 83

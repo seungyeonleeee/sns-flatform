@@ -81,7 +81,7 @@ const PostForm = () => {
   const [file, setFile] = useState<File | null>(null); // 어떠한 값이 들어올지 모르고 최초에는 아무것도 있으면 안됨 , TS에서 or는 | 1개
 
   // 111 최대 용량 제한
-  const maxFileSize = 5 * 1024 * 1024; // 5메가 - 데이터 단위 참고
+  const maxFileSize = 7 * 1024 * 1024; // 7메가 - 데이터 단위 참고
 
   // 97
   const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {

@@ -1,14 +1,13 @@
 // 113, // 116 useState, // 121 useEffect
 import {
   collection,
-  getDocs,
   limit,
   onSnapshot,
   orderBy,
   query,
   Unsubscribe,
 } from "firebase/firestore";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 // 118
 import styled from "styled-components";
 import { db } from "../firebase";
