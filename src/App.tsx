@@ -85,6 +85,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
 
   // 16 초기화
+  //
   const init = async () => {
     // 25 사용자가 로그인한 상태를 가져옴
     // 여기까지 백엔드 세팅 끝
